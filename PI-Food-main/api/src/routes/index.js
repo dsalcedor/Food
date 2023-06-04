@@ -1,8 +1,11 @@
 const { Router } = require("express");
-const getRecipes = require("../controllers/getRecipes");
-const getRecipeById = require("../controllers/getRecipeById");
-const getDiets = require("../controllers/getDiets");
-const postRecipe = require("../controllers/postRecipe");
+const {
+  getRecipesHandler,
+  getRecipeByIdHandler,
+  createRecipeHandler,
+} = require("../handlers/recipeHandlers");
+const getDietsHandler = require("../handlers/dietsHandlers");
+
 // Importar todos los routers;
 // Ejemplo: const authRouter = require('./auth.js');
 
@@ -11,12 +14,12 @@ const router = Router();
 // Configurar los routers
 // Ejemplo: router.use('/auth', authRouter);
 
-router.get("/recipes/:idRecipe", getRecipeById);
+router.get("/recipes/:idRecipe", getRecipeByIdHandler);
 
-router.get("/recipes/name", getRecipes);
+router.get("/recipes", getRecipesHandler);
 
-router.post("/recipes", postRecipe);
+router.post("/recipes", createRecipeHandler);
 
-router.get("/diets", getDiets);
+router.get("/diets", getDietsHandler);
 
 module.exports = router;

@@ -1,9 +1,8 @@
-const axios = require('axios');
-const { get } = require('../routes');
-const {API_KEY} = process.env;
+const axios = require("axios");
+const { API_KEY } = process.env;
 
-function getRecipeById(req, res){
-    res.send('Aqui se ve una receta por id')
+function getRecipeById(id) {
+  return `Aqui se ve el detalle de la receta con id: ${id}`;
 }
 
 module.exports = getRecipeById;
