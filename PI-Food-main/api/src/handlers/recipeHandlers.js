@@ -15,9 +15,15 @@ function getRecipesHandler(req, res) {
 
 function getRecipeByIdHandler(req, res) {
   const { idRecipe } = req.params;
+  console.log(idRecipe)
+  try {
+    const recipeById = getRecipeById(idRecipe);
+    console.log(recipeById)
+    res.status(202).json(recipeById);
 
-  const recipeById = getRecipeById(idRecipe);
-  res.status(202).send(recipeById);
+  } catch (error) {
+    res.status(404).json({error:error.message})
+  }
 }
 
 function createRecipeHandler(req, res) {
