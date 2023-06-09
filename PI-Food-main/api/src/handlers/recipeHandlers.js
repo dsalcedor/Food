@@ -5,24 +5,26 @@ const postRecipe = require("../controllers/postRecipe");
 function getRecipesHandler(req, res) {
   const { name } = req.query;
 
-  if (name) {
+  try {
     const recipes = getRecipes(name);
-    res.send(recipes);
-  } else {
-    res.send("Se muestran todas las recetas");
+    res.status(200).json(recipes);
+    
+  } catch (error) {
+    res.status(400).json({error: error.message})
   }
+
 }
 
-function getRecipeByIdHandler(req, res) {
+async function getRecipeByIdHandler(req, res) {
   const { idRecipe } = req.params;
-  console.log(idRecipe)
-  try {
-    const recipeById = getRecipeById(idRecipe);
-    console.log(recipeById)
-    res.status(202).json(recipeById);
 
+  const source = idRecipe === "NaN" ? "BDD" : "API";
+  console.log(idRecipe);
+  try {
+    const recipeById = await getRecipeById(idRecipe, source);
+    res.status(202).json(recipeById);
   } catch (error) {
-    res.status(404).json({error:error.message})
+    res.status(404).json({ error: error.message });
   }
 }
 

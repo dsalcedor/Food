@@ -1,38 +1,21 @@
 const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
-  sequelize.define("Diets", {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
+  sequelize.define(
+    "Diets",
+    {
+      id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+      },
 
-    name: {
-      type: DataTypes.TEXT,
-      allowNull: false,
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
-  });
+    { timestamps: false }
+  );
 };
 
-
-
-// const { DataTypes } = require("sequelize");
-
-// module.exports = (sequelize) => {
-//   sequelize.define(
-//     "Diets",
-//     {
-//       id: {
-//         type: DataTypes.UUID,
-//         primaryKey: true,
-//         defaultValue: DataTypes.UUIDV4,
-//       },
-//       name: {
-//         type: DataTypes.STRING,
-//         allowNull: false,
-//       }
-//     },
-//     { timestamps: false }
-//   );
-// };

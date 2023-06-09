@@ -1,21 +1,24 @@
 const axios = require("axios");
+const Recipe = require("../models/Recipe");
+require("dotenv").config();
 const { API_KEY } = process.env;
 
-function getRecipeById(id) {
+async function getRecipeById(id, source) {
   // return `Aqui se ve el detalle de la receta con id: ${id}`;
-  const URL = `https://api.spoonacular.com/recipes/${id}/information?apiKey=${API_KEY}`;
+  const URL = `https://api.spoonacular.com/recipes/${id}/information?apiKey=${API_KEY}&includeNutrition=false`;
 
-  axios(URL)
-    .then((response) => {
-      const { id, title, image, summary} = response.data;
-      console.log(id, title, image, summary)
-      const recipe = { id, name: title, image, summary };
-      if(recipe) recipe
-      else 'No se encontro la receta'
-    })
-    .catch((error) => {
-      return "Error en la request";
-    });
+  if(source === 'API'){
+    const recipe = (await axios.get(URL)).data;
+  
+    return {
+      id: recipe.id,
+      name: recipe.title,
+      image: recipe.image,
+      summary:recipe.summary
+    };
+  }
+
+  return await Recipe.findByPk(id);
 }
 
 module.exports = getRecipeById;
