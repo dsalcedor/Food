@@ -2,17 +2,15 @@ const getRecipes = require("../controllers/getRecipes");
 const getRecipeById = require("../controllers/getRecipeById");
 const postRecipe = require("../controllers/postRecipe");
 
-function getRecipesHandler(req, res) {
-  const { name } = req.query;
-
+async function getRecipesHandler(req, res) {
   try {
-    const recipes = getRecipes(name);
-    res.status(200).json(recipes);
-    
-  } catch (error) {
-    res.status(400).json({error: error.message})
-  }
+    const { name } = req.query;
 
+    const recipes = await getRecipes(name);
+    res.status(200).json(recipes);
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
 }
 
 async function getRecipeByIdHandler(req, res) {
@@ -28,11 +26,16 @@ async function getRecipeByIdHandler(req, res) {
   }
 }
 
-function createRecipeHandler(req, res) {
-  const { name, image, description, healthscore, steps } = req.body;
-
-  const newRecipe = postRecipe(name, image, description, healthscore, steps);
-  res.send(201).send(newRecipe);
+async function createRecipeHandler(req, res) {
+  try {
+    const { name, image, summary, healthScore, steps, diets } = req.body;
+  
+    const newRecipe = await postRecipe(name, image, summary, healthScore, steps, diets);
+    res.send(200).json(newRecipe);
+    
+  } catch (error) {
+    res.status(400).json({error:error.message})
+  }
 }
 
 module.exports = {

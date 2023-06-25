@@ -33,10 +33,10 @@ module.exports = (sequelize) => {
       },
 
       steps: {
-        type: DataTypes.ARRAY(DataTypes.JSON),
+        type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: false,
       },
     },
-    { timestapms: false }
+    { timestamps: false }
   );
 };

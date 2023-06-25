@@ -1,22 +1,125 @@
 const axios = require("axios");
+const { Op } = require("sequelize");
+require("dotenv").config();
 const { API_KEY } = process.env;
-const Recipe = require("../models/Recipe");
+const { baseUrl, flag } = require("../helpers/urls");
+const { Recipe, Diets } = require("../db");
 const getRecipeById = require("./getRecipeById");
 
 async function getRecipes(name) {
-  // return `Aqui se ven las recetas con este name: ${name}`;
-  const URL = `https://api.spoonacular.com/recipes/autocomplete?apiKey=${API_KEY}&number=25&query=${name}`;
+  if (!name) {
+    //Busqueda en BDD.
 
-  let completeRecipes = [];
-  
+    const recipesDB = await Recipe.findAll({
+      include: {
+        model: Diets,
+        attributes: ["name"],
+        through: {
+          attributes: [],
+        },
+      },
+    });
 
-  const recipesByName = (await axios.get(URL)).data;
+    const allRecipesDB = recipesDB.map((receta) => {
+      const diets = receta.Diets.map((dieta) => dieta.name);
+      return {
+        id: receta.id,
+        name: receta.name,
+        image: receta.image,
+        summary: receta.summary,
+        healthScore: receta.healthScore,
+        steps: receta.steps,
+        diets,
+      };
+    });
 
-  recipesByName.map((recipe) =>
-    completeRecipes.push(getRecipeById(recipe.id, "API"))
-  );
+    // Busqueda en la API.
 
-  return completeRecipes
+    const apiKey = API_KEY;
+    const number = 100;
+
+    const { data } = await axios.get(baseUrl + flag, {
+      params: {
+        apiKey,
+        number,
+      },
+    });
+
+    const allRecipesAPI = data.results.map((receta) => {
+      return {
+        id: receta.id,
+        name: receta.title,
+        image: receta.image,
+        summary: receta.summary,
+        healthScore: receta.healthScore,
+        steps: receta.analyzedInstructions[0]?.steps.map((paso) => paso.step),
+        diets: receta.diets,
+      };
+    });
+
+    return [...allRecipesDB, ...allRecipesAPI];
+  } else {
+    const recipesByNameDB = await Recipe.findAll({
+      where: {
+        name: {
+          [Op.iLike]: `%${name}%`,
+        },
+      },
+      include: {
+        model: Diets,
+        attributes: ["name"],
+        through: {
+          attributes: [],
+        },
+      },
+    });
+
+    const allRecipesByNameDB = recipesByNameDB.map((receta) => {
+      const diets = receta.Diets.map((dieta) => dieta.name);
+      return {
+        id: receta.id,
+        name: receta.name,
+        image: receta.image,
+        summary: receta.summary,
+        healthScore: receta.healthScore,
+        steps: receta.steps,
+        diets,
+      };
+    });
+
+    //Buscar por name en la API.
+
+    const { data } = await axios.get(baseUrl + flag, {
+      params: {
+        apiKey: API_KEY,
+        number: 100,
+      },
+    });
+
+    const allRecipesByNameAPI = data.results.map((receta) => {
+      return {
+        id: receta.id,
+        name: receta.title,
+        image: receta.image,
+        summary: receta.summary,
+        healthScore: receta.healthScore,
+        steps: receta.analyzedInstructions[0]?.steps.map((paso) => paso.step),
+        diets: receta.diets,
+      };
+    });
+
+    const filteredRecipes = allRecipesByNameAPI.filter((receta) =>
+      receta.name.toLowerCase().includes(name.toLowerCase())
+    );
+
+    const resultado = [...allRecipesByNameDB, ...filteredRecipes];
+
+    if (resultado.length === 0) {
+      return { message: "No se encontraron recetas con ese nombre" };
+    }
+
+    return resultado;
+  }
 }
 
 module.exports = getRecipes;

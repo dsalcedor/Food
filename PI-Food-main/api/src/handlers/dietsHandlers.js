@@ -1,8 +1,12 @@
 const getDiets = require("../controllers/getDiets");
 
-function getDietsHandler(req, res) {
-  const diets = getDiets();
-  res.send(diets);
+async function getDietsHandler(req, res) {
+  try {
+    const diets = await getDiets();
+    res.status(200).json(diets);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 }
 
 module.exports = getDietsHandler;
